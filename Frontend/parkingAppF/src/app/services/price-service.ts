@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 })
 export class PriceService {
 
-  private apiUrl = 'http://localhost:8080/price';
+  private apiUrl = 'https://parkingapp-bz8a.onrender.com/price';
 
   constructor(private http: HttpClient) { }
 
