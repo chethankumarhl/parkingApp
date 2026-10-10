@@ -1,0 +1,462 @@
+<div class="min-h-screen p-6">
+
+  <!-- HEADING -->
+
+  <h1 class="mb-8 text-center text-3xl font-bold">
+    <!-- Price Setting -->
+     単価設定
+  </h1>
+
+
+  <!-- LOADING -->
+
+  @if (loading()) {
+
+    <div class="flex min-h-64 items-center justify-center">
+
+      <div class="flex flex-col items-center gap-3">
+
+        <div
+          class="h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-gray-800"
+        ></div>
+
+        <p class="text-gray-600">
+          Loading price data...
+          単価データを読み込んでいます...
+        </p>
+
+      </div>
+
+    </div>
+
+  }
+
+  @else {
+
+    <!-- =================================== -->
+    <!-- ADD PRICE FORM -->
+    <!-- =================================== -->
+
+    @if (adding()) {
+
+      <div
+        class="mx-auto mb-8 max-w-3xl rounded-lg border-2 border-gray-800 bg-gray-50 p-6 shadow-md"
+      >
+
+        <h2 class="mb-5 text-xl font-bold">
+          <!-- Add New Price -->
+          Add New Price　新しい単価を追加
+        </h2>
+
+
+        <form
+          [formGroup]="addPriceForm"
+          (ngSubmit)="addNewPrice()"
+        >
+
+          <div class="grid gap-5 md:grid-cols-3">
+
+            <!-- Duration -->
+
+            <div>
+
+              <label
+                class="mb-2 block font-semibold"
+              >
+                <!-- Duration -->
+                期間
+              </label>
+
+              <input
+                type="number"
+                formControlName="duration"
+                min="1"
+                placeholder="Example: 6"
+                class="w-full rounded-md border-2 border-gray-400 px-3 py-2 outline-none focus:border-gray-800"
+              />
+
+              @if (
+                addPriceForm.get('duration')?.touched &&
+                addPriceForm.get('duration')?.invalid
+              ) {
+
+                <p class="mt-1 text-sm text-red-600">
+                  Enter a valid duration.
+                  有効な期間を入力してください。
+                </p>
+
+              }
+
+            </div>
+
+
+            <!-- Display Duration -->
+
+            <div>
+
+              <label
+                class="mb-2 block font-semibold"
+              >
+                <!-- Display Duration -->
+                表示期間
+              </label>
+
+              <input
+                type="text"
+                formControlName="displayDuration"
+                placeholder="Example: 6 hr"
+                class="w-full rounded-md border-2 border-gray-400 px-3 py-2 outline-none focus:border-gray-800"
+              />
+
+              @if (
+                addPriceForm.get('displayDuration')?.touched &&
+                addPriceForm.get('displayDuration')?.invalid
+              ) {
+
+                <p class="mt-1 text-sm text-red-600">
+                  Enter display duration.
+                  表示期間を入力してください。
+                </p>
+
+              }
+
+            </div>
+
+
+            <!-- Unit Price -->
+
+            <div>
+
+              <label
+                class="mb-2 block font-semibold"
+              >
+                Unit Price
+                単価
+              </label>
+
+              <div class="flex items-center">
+
+                <span class="mr-2 text-lg font-bold">
+                  ¥
+                </span>
+
+                <input
+                  type="number"
+                  formControlName="unitPrice"
+                  min="0"
+                  step="0.01"
+                  placeholder="Example: 25"
+                  class="w-full rounded-md border-2 border-gray-400 px-3 py-2 outline-none focus:border-gray-800"
+                />
+
+              </div>
+
+              @if (
+                addPriceForm.get('unitPrice')?.touched &&
+                addPriceForm.get('unitPrice')?.invalid
+              ) {
+
+                <p class="mt-1 text-sm text-red-600">
+                  Enter a valid price.
+                  有効な価格を入力してください。
+                </p>
+
+              }
+
+            </div>
+
+          </div>
+
+
+          <!-- Add / Cancel -->
+
+          <div class="mt-6 flex justify-center gap-4">
+
+            <button
+              type="submit"
+              [disabled]="addingPrice()"
+              class="rounded-md bg-green-700 px-8 py-2 font-semibold text-white transition hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+
+              @if (addingPrice()) {
+                Adding...
+                追加中...
+
+              }
+              @else {
+                ✓ Add
+                追加します
+              }
+
+            </button>
+
+
+            <button
+              type="button"
+              (click)="cancelAdd()"
+              [disabled]="addingPrice()"
+              class="rounded-md bg-gray-500 px-8 py-2 font-semibold text-white transition hover:bg-gray-400"
+            >
+              Cancel
+              キャンセル
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    }
+
+
+    <!-- =================================== -->
+    <!-- PRICE TABLE -->
+    <!-- =================================== -->
+
+    <form
+      [formGroup]="priceForm"
+      class="mx-auto max-w-4xl"
+    >
+
+      <div formArrayName="prices">
+
+        <div
+          class="overflow-hidden rounded-lg border-2 border-gray-800 shadow-md"
+        >
+
+          <table class="w-full border-collapse">
+
+            <!-- =============================== -->
+            <!-- HEADER -->
+            <!-- =============================== -->
+
+            <thead>
+
+              <tr class="bg-gray-100">
+
+                <th
+                  class="border-b-2 border-r-2 border-gray-800 px-6 py-4 text-center text-xl font-bold"
+                >
+                  <!-- DURATION -->
+                  期間
+                </th>
+
+
+                <th
+                  class="border-b-2 border-gray-800 px-6 py-4 text-center text-xl font-bold"
+                  [class.border-r-2]="editing()"
+                >
+                  <!-- PRICE -->
+                  単価
+
+                </th>
+
+
+                @if (editing()) {
+
+                  <th
+                    class="border-b-2 border-gray-800 px-4 py-4 text-center text-xl font-bold"
+                  >
+                    ACTION
+                    操作
+                  </th>
+
+                }
+
+              </tr>
+
+            </thead>
+
+
+            <!-- =============================== -->
+            <!-- BODY -->
+            <!-- =============================== -->
+
+            <tbody>
+
+              @for (
+                price of priceData();
+                track price.id;
+                let i = $index
+              ) {
+
+                <tr
+                  [formGroupName]="i"
+                  class="transition hover:bg-gray-50"
+                >
+
+                  <!-- Duration -->
+
+                  <td
+                    class="border-b-2 border-r-2 border-gray-800 px-6 py-4 text-center text-lg font-semibold"
+                  >
+
+                    {{ price.displayDuration }}
+
+                  </td>
+
+
+                  <!-- Price -->
+
+                  <td
+                    class="border-b-2 border-gray-800 px-6 py-4"
+                    [class.border-r-2]="editing()"
+                  >
+
+                    <div
+                      class="flex items-center justify-center"
+                    >
+
+                      <span
+                        class="mr-2 text-lg font-semibold"
+                      >
+                        ¥
+                      </span>
+
+
+                      <input
+                        type="number"
+                        formControlName="unitPrice"
+                        min="0"
+                        step="0.01"
+                        class="w-36 rounded border-2 border-gray-700 px-3 py-2 text-center text-lg outline-none transition focus:border-gray-900 disabled:bg-gray-100 disabled:text-gray-700"
+                      />
+
+                    </div>
+
+                  </td>
+
+
+                  <!-- Delete -->
+
+                  @if (editing()) {
+
+                    <td
+                      class="border-b-2 border-gray-800 px-4 py-4 text-center"
+                    >
+
+                      <button
+                        type="button"
+                        (click)="deletePrice(price.id)"
+                        [disabled]="deletingId() === price.id"
+                        class="rounded-md bg-red-600 px-4 py-2 font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+
+                        @if (
+                          deletingId() === price.id
+                        ) {
+
+                          Deleting...
+
+                        }
+                        @else {
+
+                          Delete
+                          削除
+
+                        }
+
+                      </button>
+
+                    </td>
+
+                  }
+
+                </tr>
+
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+
+        <!-- ================================= -->
+        <!-- MAIN BUTTONS -->
+        <!-- ================================= -->
+
+        <div class="mt-8 flex flex-wrap justify-center gap-4">
+
+          <!-- EDIT -->
+
+          @if (!editing()) {
+
+            <button
+              type="button"
+              (click)="editPrices()"
+              class="rounded-md bg-gray-800 px-8 py-3 text-lg font-semibold text-white transition hover:bg-gray-700"
+            >
+              Edit・編集
+            </button>
+
+          }
+
+
+          <!-- DONE -->
+
+          @if (editing()) {
+
+            <button
+              type="button"
+              (click)="savePrices()"
+              [disabled]="saving()"
+              class="rounded-md bg-green-700 px-8 py-3 text-lg font-semibold text-white transition hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+
+              @if (saving()) {
+                Saving...
+              }
+              @else {
+                ✓ Done　完了
+
+              }
+
+            </button>
+
+          }
+
+
+          <!-- ADD PRICE -->
+
+          @if (!editing()) {
+
+            <button
+              type="button"
+              (click)="showAddForm()"
+              class="rounded-md bg-blue-700 px-8 py-3 text-lg font-semibold text-white transition hover:bg-blue-600"
+            >
+              + Add Price　単価を追加
+            </button>
+
+          }
+
+        </div>
+
+      </div>
+
+    </form>
+
+
+    <!-- =================================== -->
+    <!-- BACK -->
+    <!-- =================================== -->
+
+    <div class="fixed bottom-5 right-5 mt-6 flex justify-center">
+
+      <button
+        type="button"
+        (click)="goBack()"
+        class="inline-block rounded-md bg-gray-800 px-6 py-2 font-medium text-white transition hover:bg-gray-700"
+      >
+        <!-- ← Back -->
+         ← 戻る
+      </button>
+
+    </div>
+
+  }
+
+</div>

@@ -1,0 +1,36 @@
+services:
+
+  backend:
+    build: ./parkingApp
+    container_name: parking-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: ${DB_URL}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+
+  frontend:
+    build: ./Frontend/parkingAppF
+    container_name: parking-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+      - ml-service
+
+  ml-service:
+    build:
+      context: ./plate-recognition/plate-recognition
+      dockerfile: Dockerfile
+    container_name: parking-ml
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    volumes:
+      - fastalpr-cache:/root/.cache
+      - paddlex-cache:/root/.paddlex
+
+volumes:
+  fastalpr-cache:
+  paddlex-cache:

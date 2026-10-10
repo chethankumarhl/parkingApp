@@ -1,0 +1,71 @@
+<!-- Navigation bar for the application -->
+ 
+<nav class="flex items-center justify-between bg-gray-900 px-6 py-3">
+   <h1 class="text-xl font-bold text-white py-3">
+    Parking App / 駐車場管理
+  </h1>
+@if (router.url !== '/home') {
+  <!-- Title -->
+  <h1 class="text-xl font-bold text-white">
+    
+  </h1>
+}
+  <!-- Navigation links - hidden on Home -->
+  @if (router.url !== '/home') {
+
+    <ul class="flex items-center gap-2">
+
+      <li>
+        <a
+          routerLink="/home"
+          routerLinkActive="bg-gray-700 text-white"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="block rounded-md px-4 py-2 font-medium text-gray-300 transition hover:bg-gray-800 hover:text-white"
+        >
+          <!-- Home -->
+           ホーム
+        </a>
+      </li>
+
+      <li>
+        <a
+          routerLink="/parking"
+          routerLinkActive="bg-gray-700 text-white"
+          class="block rounded-md px-4 py-2 font-medium text-gray-300 transition hover:bg-gray-800 hover:text-white"
+        >
+          <!-- Parking -->
+          現在駐車場状態
+        </a>
+      </li>
+
+      <li>
+        <a
+          routerLink="/price"
+          routerLinkActive="bg-gray-700 text-white"
+          class="block rounded-md px-4 py-2 font-medium text-gray-300 transition hover:bg-gray-800 hover:text-white"
+        >
+          <!-- Price -->
+          単価設定
+        </a>
+      </li>
+
+      <li>
+        <a
+          routerLink="/calender"
+          routerLinkActive="bg-gray-700 text-white"
+          class="block rounded-md px-4 py-2 font-medium text-gray-300 transition hover:bg-gray-800 hover:text-white"
+        >
+          <!-- Calendar -->
+          カレンダー
+        </a>
+      </li>
+
+    </ul>
+
+  }
+
+</nav>
+
+<main class="p-6">
+  <router-outlet></router-outlet>
+</main>

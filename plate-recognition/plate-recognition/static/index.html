@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Plate Recognition — Test Console (IN + JP)</title>
+<style>
+  :root {
+    --asphalt: #16181d;
+    --panel: #1f232b;
+    --panel-line: #2c313c;
+    --plate-yellow: #f4c430;
+    --plate-yellow-dim: #b6931f;
+    --text: #e7e9ee;
+    --text-dim: #8a90a0;
+    --good: #4fd18b;
+    --bad: #ef5f5f;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--asphalt);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+    padding: 32px 20px 60px;
+  }
+  header {
+    max-width: 980px;
+    margin: 0 auto 28px;
+  }
+  header h1 {
+    font-size: 22px;
+    margin: 0 0 4px;
+    letter-spacing: 0.2px;
+  }
+  header h1 span {
+    color: var(--plate-yellow);
+    font-family: var(--mono);
+  }
+  header p { color: var(--text-dim); margin: 0; font-size: 14px; }
+
+  .grid {
+    max-width: 980px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 800px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--panel-line);
+    border-radius: 10px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .panel h2 {
+    font-size: 15px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text);
+  }
+  .panel h2 .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--asphalt);
+    background: var(--plate-yellow);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+
+  .drop {
+    border: 1.5px dashed var(--panel-line);
+    border-radius: 8px;
+    padding: 24px 12px;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .drop:hover, .drop.drag { border-color: var(--plate-yellow-dim); color: var(--text); }
+  .drop input { display: none; }
+
+  img.preview, video.preview {
+    width: 100%;
+    border-radius: 8px;
+    background: #000;
+    display: none;
+    max-height: 280px;
+    object-fit: contain;
+  }
+
+  canvas.hidden { display: none; }
+
+  button {
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    border-radius: 7px;
+    padding: 10px 14px;
+    cursor: pointer;
+    background: var(--plate-yellow);
+    color: #1b1500;
+    transition: filter 0.15s;
+  }
+  button:hover { filter: brightness(1.08); }
+  button:disabled { background: var(--panel-line); color: var(--text-dim); cursor: not-allowed; }
+  button.secondary {
+    background: transparent;
+    border: 1px solid var(--panel-line);
+    color: var(--text);
+  }
+  .btn-row { display: flex; gap: 8px; }
+
+  .status { font-size: 12px; color: var(--text-dim); min-height: 16px; }
+
+  .results {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .plate-card {
+    background: var(--asphalt);
+    border: 1px solid var(--panel-line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .plate-text {
+    font-family: var(--mono);
+    font-size: 18px;
+    letter-spacing: 2px;
+    background: var(--plate-yellow);
+    color: #1b1500;
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-weight: 700;
+  }
+  .plate-meta {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: right;
+    line-height: 1.5;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    margin-left: 6px;
+  }
+  .badge.yes { background: rgba(79,209,139,0.15); color: var(--good); }
+  .badge.no { background: rgba(239,95,95,0.1); color: var(--text-dim); }
+
+  .empty { color: var(--text-dim); font-size: 13px; padding: 6px 0; }
+  .error { color: var(--bad); font-size: 13px; }
+
+  .toolbar {
+    max-width: 980px;
+    margin: 0 auto 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .toolbar select {
+    font: inherit;
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--panel-line);
+    border-radius: 7px;
+    padding: 7px 10px;
+  }
+  .plate-text.jp {
+    background: #f4f6f2;
+    color: #14532d;
+    border: 2px solid #14532d;
+    font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", "Meiryo", var(--mono);
+    letter-spacing: 1px;
+  }
+  .badge.jp { background: rgba(88,166,255,0.15); color: #7db8ff; }
+  .badge.in { background: rgba(79,209,139,0.15); color: var(--good); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>License Plate Recognition <span>/dev-console</span></h1>
+  <p>Indian and Japanese plates, one endpoint — upload an image, or scan live from your camera.</p>
+</header>
+
+<div class="toolbar">
+  <label for="countrySel">Plate type</label>
+  <select id="countrySel">
+    <option value="auto" selected>Auto-detect (India / Japan)</option>
+    <option value="in">India only</option>
+    <option value="jp">Japan only</option>
+  </select>
+</div>
+
+<div class="grid">
+
+  <!-- Upload panel -->
+  <section class="panel">
+    <h2><span class="tag">01</span> Upload image</h2>
+    <label class="drop" id="dropZone">
+      Click to choose an image, or drag one here
+      <input type="file" id="fileInput" accept="image/*" />
+    </label>
+    <img id="uploadPreview" class="preview" alt="preview" />
+    <div class="btn-row">
+      <button id="uploadBtn" disabled>Recognize plate</button>
+      <button class="secondary" id="uploadClear">Clear</button>
+    </div>
+    <div class="status" id="uploadStatus"></div>
+    <div class="results" id="uploadResults"><div class="empty">No results yet.</div></div>
+    <img id="uploadDebugImg" class="preview" alt="detector debug view" />
+  </section>
+
+  <!-- Camera panel -->
+  <section class="panel">
+    <h2><span class="tag">02</span> Live camera</h2>
+    <video id="cameraVideo" class="preview" autoplay playsinline muted></video>
+    <canvas id="cameraCanvas" class="hidden"></canvas>
+    <div class="btn-row">
+      <button id="cameraStart">Start camera</button>
+      <button id="cameraCapture" disabled>Capture &amp; recognize</button>
+      <button class="secondary" id="cameraStop" disabled>Stop</button>
+    </div>
+    <div class="status" id="cameraStatus"></div>
+    <div class="results" id="cameraResults"><div class="empty">No results yet.</div></div>
+    <img id="cameraDebugImg" class="preview" alt="detector debug view" />
+  </section>
+
+</div>
+
+<script>
+const API_BASE = ""; // same origin as this page
+
+// ---------- shared render helper ----------
+function showDebugImage(imgEl, data) {
+  if (data.debug_image_base64) {
+    imgEl.src = data.debug_image_base64;
+    imgEl.style.display = "block";
+  } else {
+    imgEl.style.display = "none";
+  }
+}
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text;   // textContent: OCR output is never parsed as HTML
+  return e;
+}
+
+const COUNTRY_LABEL = { IN: "India", JP: "Japan", UNKNOWN: "other format" };
+
+function renderResults(container, data) {
+  container.replaceChildren();
+  if (!data.plates || data.plates.length === 0) {
+    container.appendChild(el("div", "empty",
+      `No plate detected after ${data.attempts} attempt(s). Check the debug image below (if any) to see whether the detector found a box at all.`));
+    return;
+  }
+  data.plates.forEach(p => {
+    const card = el("div", "plate-card");
+    const code = (p.country || "UNKNOWN").toLowerCase();
+    card.appendChild(el("span", "plate-text" + (p.country === "JP" ? " jp" : ""), p.plate_text));
+
+    const meta = el("span", "plate-meta");
+    if (p.country !== "JP") {
+      meta.appendChild(document.createTextNode(
+        `det ${(p.detection_confidence * 100).toFixed(1)}% · ocr ${(p.ocr_confidence * 100).toFixed(1)}% `));
+    }
+    meta.appendChild(el("span", "badge " + (p.country === "UNKNOWN" ? "no" : code),
+      COUNTRY_LABEL[p.country] || p.country));
+    card.appendChild(meta);
+    container.appendChild(card);
+  });
+
+  const engines = data.debug && data.debug.engines_run ? ` · engines: ${data.debug.engines_run.join(" → ")}` : "";
+  const timing = el("div", "status", `${data.count} plate(s) · ${data.processing_time_ms} ms${engines}`);
+  timing.style.marginTop = "4px";
+  container.appendChild(timing);
+}
+
+function showError(container, msg) {
+  container.replaceChildren(el("div", "error", msg));
+}
+
+const countrySel = document.getElementById("countrySel");
+const apiUrl = path => `${API_BASE}${path}?country=${encodeURIComponent(countrySel.value)}`;
+
+// ---------- Upload panel ----------
+const dropZone = document.getElementById("dropZone");
+const fileInput = document.getElementById("fileInput");
+const uploadPreview = document.getElementById("uploadPreview");
+const uploadBtn = document.getElementById("uploadBtn");
+const uploadClear = document.getElementById("uploadClear");
+const uploadStatus = document.getElementById("uploadStatus");
+const uploadResults = document.getElementById("uploadResults");
+let selectedFile = null;
+
+fileInput.addEventListener("change", e => handleFile(e.target.files[0]));
+["dragover", "dragenter"].forEach(evt =>
+  dropZone.addEventListener(evt, e => { e.preventDefault(); dropZone.classList.add("drag"); })
+);
+["dragleave", "drop"].forEach(evt =>
+  dropZone.addEventListener(evt, e => { e.preventDefault(); dropZone.classList.remove("drag"); })
+);
+dropZone.addEventListener("drop", e => {
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+
+function handleFile(file) {
+  if (!file || !file.type.startsWith("image/")) return;
+  selectedFile = file;
+  uploadPreview.src = URL.createObjectURL(file);
+  uploadPreview.style.display = "block";
+  uploadBtn.disabled = false;
+  uploadResults.innerHTML = '<div class="empty">No results yet.</div>';
+  uploadStatus.textContent = "";
+}
+
+uploadClear.addEventListener("click", () => {
+  selectedFile = null;
+  fileInput.value = "";
+  uploadPreview.src = "";
+  uploadPreview.style.display = "none";
+  uploadBtn.disabled = true;
+  uploadResults.innerHTML = '<div class="empty">No results yet.</div>';
+  uploadStatus.textContent = "";
+});
+
+uploadBtn.addEventListener("click", async () => {
+  if (!selectedFile) return;
+  uploadBtn.disabled = true;
+  uploadStatus.textContent = "Recognizing...";
+  try {
+    const form = new FormData();
+    form.append("file", selectedFile);
+    const res = await fetch(apiUrl("/api/recognize"), { method: "POST", body: form });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "Request failed");
+    uploadStatus.textContent = "Done.";
+    renderResults(uploadResults, data);
+    showDebugImage(document.getElementById("uploadDebugImg"), data);
+  } catch (err) {
+    uploadStatus.textContent = "";
+    showError(uploadResults, err.message);
+  } finally {
+    uploadBtn.disabled = false;
+  }
+});
+
+// ---------- Camera panel ----------
+const cameraVideo = document.getElementById("cameraVideo");
+const cameraCanvas = document.getElementById("cameraCanvas");
+const cameraStart = document.getElementById("cameraStart");
+const cameraCapture = document.getElementById("cameraCapture");
+const cameraStop = document.getElementById("cameraStop");
+const cameraStatus = document.getElementById("cameraStatus");
+const cameraResults = document.getElementById("cameraResults");
+let mediaStream = null;
+
+cameraStart.addEventListener("click", async () => {
+  try {
+    mediaStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" },
+      audio: false,
+    });
+    cameraVideo.srcObject = mediaStream;
+    cameraVideo.style.display = "block";
+    cameraStart.disabled = true;
+    cameraCapture.disabled = false;
+    cameraStop.disabled = false;
+    cameraStatus.textContent = "Camera live.";
+  } catch (err) {
+    cameraStatus.textContent = "";
+    showError(cameraResults, "Could not access camera: " + err.message);
+  }
+});
+
+cameraStop.addEventListener("click", stopCamera);
+
+function stopCamera() {
+  if (mediaStream) {
+    mediaStream.getTracks().forEach(t => t.stop());
+    mediaStream = null;
+  }
+  cameraVideo.style.display = "none";
+  cameraStart.disabled = false;
+  cameraCapture.disabled = true;
+  cameraStop.disabled = true;
+  cameraStatus.textContent = "Camera stopped.";
+}
+
+cameraCapture.addEventListener("click", async () => {
+  if (!mediaStream) return;
+  cameraCanvas.width = cameraVideo.videoWidth;
+  cameraCanvas.height = cameraVideo.videoHeight;
+  const ctx = cameraCanvas.getContext("2d");
+  ctx.drawImage(cameraVideo, 0, 0, cameraCanvas.width, cameraCanvas.height);
+  const dataUrl = cameraCanvas.toDataURL("image/jpeg", 0.92);
+
+  cameraCapture.disabled = true;
+  cameraStatus.textContent = "Recognizing...";
+  try {
+    const res = await fetch(apiUrl("/api/recognize-base64"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: dataUrl }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "Request failed");
+    cameraStatus.textContent = "Done.";
+    renderResults(cameraResults, data);
+    showDebugImage(document.getElementById("cameraDebugImg"), data);
+  } catch (err) {
+    cameraStatus.textContent = "";
+    showError(cameraResults, err.message);
+  } finally {
+    cameraCapture.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

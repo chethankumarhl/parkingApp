@@ -1,0 +1,160 @@
+<div class="min-h-screen p-6">
+  <h1 class="mb-8 text-center text-3xl font-bold">
+    <!-- Plate Capture -->
+  ナンバープレート撮影
+  </h1>
+
+  <!-- CHOOSE MODE -->
+
+  @if (mode() === 'choose') {
+    <div class="mx-auto flex max-w-md flex-col gap-4">
+      <button
+        type="button"
+        (click)="chooseLive()"
+        class="bg-transparent text-lg hover:bg-black text-black-700 font-semibold hover:text-white py-2 px-4 border border-black-500 hover:border-transparent rounded"
+      >
+        <mat-icon class="py-1">camera_alt</mat-icon>
+        Live Capture　/ ライブ撮影
+
+
+      </button>
+
+      <button
+        type="button"
+        (click)="chooseUpload()"
+        class="bg-transparent text-lg hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+      >
+        <mat-icon class="py-1">upload</mat-icon> Upload Photo　/ 写真をアップロード
+      </button>
+    </div>
+  }
+
+   <!-- LIVE CAPTURE -->
+ 
+  @if (mode() === 'live') {
+    <div class="mx-auto flex max-w-md flex-col items-center gap-4">
+      <video
+        #videoElement
+        autoplay
+        playsinline
+        class="w-full rounded-lg border-2 border-gray-800"
+      ></video>
+
+      <canvas #canvasElement class="hidden"></canvas>
+
+      <button
+        type="button"
+        (click)="captureFrame()"
+        [disabled]="loading()"
+        class="rounded-md bg-green-700 px-8 py-3 font-semibold text-white transition hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        @if (loading()) {
+          Recognizing...
+          認識しています...
+        } @else {
+          📸 Capture & Recognize
+          撮影して認識する
+        }
+      </button>
+    </div>
+  }
+
+  <!-- PHOTO UPLOAD -->
+
+  @if (mode() === 'upload') {
+    <div class="mx-auto flex max-w-md flex-col items-center gap-4">
+      <input
+        type="file"
+        accept="image/*"
+        (change)="onFileSelected($event)"
+        [disabled]="loading()"
+        class="rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm transition-all hover:border-gray-500 focus:border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300"
+      />
+
+      @if (loading()) {
+        <p class="text-gray-600">Recognizing plate...
+          認識しています...
+        </p>
+      }
+    </div>
+  }
+
+  <!-- SHARED PREVIEW / RESULT / ERROR -->
+
+  @if (mode() !== 'choose') {
+    <div class="mx-auto mt-6 flex max-w-md flex-col items-center gap-4">
+      @if (previewUrl()) {
+        <img
+          [src]="previewUrl()"
+          alt="Captured preview"
+          class="w-full rounded-lg border-2 border-gray-300"
+        />
+      }
+
+      @if (error()) {
+        <p class="text-red-600 font-medium">{{ error() }}</p>
+      }
+
+      @if (result()) {
+        <div class="w-full rounded-lg border-2 border-gray-800 bg-gray-50 p-4">
+          <p class="mb-2 font-semibold">
+            Check the browser console for the full response. <br>
+            ブラウザのコンソールで完全な応答を確認してください。
+          
+          </p>
+          <p>Plates found / 見つけたナンバープレート ：{{ result()?.count }}</p>
+          @for (plate of result()?.plates; track plate.plate_text) {
+            <p class="mt-1 text-lg font-bold">{{ plate.plate_text }}</p>
+          }
+
+          @if (topPlateText()) {
+            <button
+              type="button"
+              (click)="addToParking()"
+              [disabled]="adding()"
+              class="mt-4 w-full rounded-md bg-green-700 px-6 py-2 font-semibold text-white transition hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              @if (adding()) {
+                Adding...
+                追加しています...
+              } @else {
+                ✓ Confirm {{ topPlateText() }} & Add to Parking <br>
+                ✓ {{ topPlateText() }} を確認して駐車場に追加
+              }
+            </button>
+          }
+
+          @if (addSuccess()) {
+            <p class="mt-2 font-medium text-green-700">{{ addSuccess() }}</p>
+          }
+
+          @if (addError()) {
+            <p class="mt-2 font-medium text-red-600">{{ addError() }}</p>
+          }
+        </div>
+      }
+
+      <button
+        type="button"
+        (click)="backToChoose()"
+        class="rounded-md bg-black px-6 py-2 font-medium text-white transition hover:bg-gray-400"
+      >
+        <!-- ← Choose another method -->
+        ← 別の方法を選択
+      </button>
+    </div>
+  }
+
+   <!-- BACK -->
+ 
+  <div class="fixed bottom-5 right-5 mt-6 flex justify-center">
+    <button
+      type="button"
+      (click)="goHome()"
+      class="inline-block rounded-md bg-gray-800 px-6 py-2 font-medium text-white transition hover:bg-gray-700"
+    >
+      <!-- ← Back -->
+      ← 戻る
+    </button>
+  </div>
+</div>

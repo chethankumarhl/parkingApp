@@ -1,0 +1,40 @@
+# # requirements.txt  (tested together on Python 3.12; `pip check` clean)
+# fastapi>=0.110
+# uvicorn[standard]>=0.29
+# python-multipart>=0.0.9
+# pydantic>=2.6
+# pillow>=10
+# numpy>=1.26
+
+# # --- Indian / Latin engine -------------------------------------------------
+# # YOLO plate detector + OCR, ONNX, CPU. The [onnx] extra is required (fast-alpr
+# # installs no runtime by default). Use fast-alpr[onnx-gpu] with an NVIDIA GPU.
+# fast-alpr[onnx]>=0.4.0
+
+# # --- Japanese engine -------------------------------------------------------
+# paddlepaddle>=3.2.0
+# paddleocr>=3.4.0
+
+# # --- OpenCV: keep exactly ONE version -------------------------------------
+# # paddleocr pins opencv-contrib-python==4.10.0.84 while fast-alpr pulls in
+# # opencv-python-headless (newest, 5.x). Two different cv2 builds in one
+# # environment overwrite each other's files and cause random import/ABI errors,
+# # so headless is pinned to the same version paddleocr uses.
+# opencv-python-headless==4.10.0.84
+
+
+fastapi>=0.110
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
+pydantic>=2.6
+
+pillow>=10
+numpy>=1.26
+
+fast-alpr[onnx]>=0.4.0
+onnxruntime>=1.18
+
+paddlepaddle>=3.2.0
+paddleocr>=3.4.0
+
+opencv-python-headless==4.10.0.84

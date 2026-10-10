@@ -1,0 +1,53 @@
+
+# =========================
+# Environment variables and secrets
+# =========================
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# =========================
+# Java / Spring Boot backend
+# =========================
+**/target/
+*.class
+*.jar
+*.war
+*.log
+
+# =========================
+# Angular frontend
+# =========================
+**/node_modules/
+**/dist/
+**/.angular/
+**/coverage/
+
+# =========================
+# Python OCR service
+# =========================
+**/__pycache__/
+**/*.py[cod]
+**/.venv/
+**/venv/
+**/venv*/
+**/.pytest_cache/
+**/.mypy_cache/
+
+# =========================
+# IDEs and editors
+# =========================
+.idea/
+.vscode/
+*.iml
+.settings/
+.project
+.classpath
+
+# =========================
+# Operating system files
+# =========================
+.DS_Store
+Thumbs.db
+desktop.ini

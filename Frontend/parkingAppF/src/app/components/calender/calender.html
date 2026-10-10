@@ -1,0 +1,293 @@
+<div class="min-h-screen border-4 border-gray-800 p-6">
+
+  <!-- Title -->
+
+  <h1 class="mb-12 text-4xl font-bold">
+    <!-- CALENDAR -->
+    カレンダー
+  </h1>
+
+  <!-- Date Navigation -->
+
+  <div class="mb-8 flex items-center justify-between px-20">
+
+
+<!-- Previous Day -->
+<button
+  (click)="previousDay()"
+  class="flex flex-col items-center font-bold text-lg hover:text-gray-600"
+>
+  <span>
+    <!-- Prev Day　 -->
+    前日</span>
+
+  <span class="mt-1 text-5xl">
+    ←
+  </span>
+</button>
+
+
+<!-- Current Date -->
+<div class="border-4 border-gray-800 px-12 py-4 text-center">
+
+  <p class="text-lg font-bold">
+    <!-- Date -->
+    日付
+  </p>
+
+  @if(selectedDate() === todayDate()) {
+    <p class="text-xl font-semibold text-green-600">
+      {{ selectedDate() }}
+       <!-- (Today) -->
+       （今日）
+    </p>
+  } @else {
+    <p class="text-xl font-semibold">
+      {{ selectedDate() }}
+    </p>
+  }
+
+</div>
+
+
+<!-- Next Day -->
+@if(selectedDate() !== todayDate()) {
+
+  <button
+    (click)="nextDay()"
+    class="flex flex-col items-center font-bold text-lg hover:text-gray-600"
+  >
+    <span>
+      <!-- Next Day -->
+      翌日
+    </span>
+
+    <span class="mt-1 text-5xl">
+      →
+    </span>
+  </button>
+
+} @else {
+
+  <button
+    disabled
+    class="flex cursor-not-allowed flex-col items-center text-lg font-bold text-gray-400"
+  >
+        <span>
+      <!-- Next Day -->
+      翌日
+    </span>
+
+    <span class="mt-1 text-5xl">
+      →
+    </span>
+  </button>
+
+}
+
+
+  </div>
+
+  <!-- Select Date -->
+
+  <div class="mb-10 flex justify-center">
+
+<div class="flex items-center gap-4">
+
+  <label
+    for="selectDate"
+    class="text-lg font-bold"
+  >
+    <!-- Select Date: -->
+    日付を選択：
+
+  </label>
+
+  <input
+    id="selectDate"
+    type="date"
+    [value]="selectedDate()"
+    (change)="selectDate($event)"
+    class="rounded-md border-2 border-gray-800 px-4 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-gray-600"
+  />
+
+</div>
+
+
+  </div>
+
+  <!-- Loading -->
+
+@if (loading()) {
+
+
+<div class="flex min-h-64 items-center justify-center">
+
+  <div class="flex flex-col items-center gap-3">
+
+    <div
+      class="h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-gray-800"
+    ></div>
+
+    <p class="text-gray-600">
+      Loading calendar data...
+      カレンダーデータを読み込んでいます...
+    </p>
+
+  </div>
+
+</div>
+
+
+}
+
+  <!-- Table -->
+
+@else {
+
+
+<div class="overflow-x-auto border-2 border-gray-800">
+
+  <table class="w-full border-collapse text-left">
+
+    <!-- Header -->
+    <thead>
+
+      <tr class="bg-gray-200">
+
+        <th class="border-2 border-gray-800 px-4 py-3">
+          ID
+        </th>
+
+        <th class="border-2 border-gray-800 px-4 py-3">
+          <!-- Registration Number -->
+          自動車登録番号
+        </th>
+
+        <th class="border-2 border-gray-800 px-4 py-3">
+          <!-- Entry Date -->
+          入場日時
+        </th>
+
+        <th class="border-2 border-gray-800 px-4 py-3">
+          <!-- Exit Date -->
+          退場日時
+        </th>
+
+        <th class="border-2 border-gray-800 px-4 py-3">
+          <!-- Parked Time -->
+          駐車時間
+        </th>
+
+        <th class="border-2 border-gray-800 px-4 py-3">
+          <!-- Final Cost -->
+          最終料金
+        </th>
+
+      </tr>
+
+    </thead>
+
+
+    <!-- Body -->
+    <tbody>
+
+      @for (parking of CalenderData(); track parking.id) {
+
+        <tr class="hover:bg-gray-100">
+
+          <!-- ID -->
+          <td class="border-2 border-gray-800 px-4 py-3">
+            {{ parking.id }}
+          </td>
+
+
+          <!-- Registration -->
+          <td class="border-2 border-gray-800 px-4 py-3 font-semibold">
+            {{ parking.registrationNumber }}
+          </td>
+
+
+          <!-- Entry Date -->
+          <td class="border-2 border-gray-800 px-4 py-3">
+            {{ parking.entryDate
+              ? (parking.entryDate | date:'medium')
+              : '-'
+            }}
+          </td>
+
+
+          <!-- Exit Date -->
+          <td class="border-2 border-gray-800 px-4 py-3">
+            {{ parking.exitDate
+              ? (parking.exitDate | date:'medium')
+              : '-'
+            }}
+          </td>
+
+
+          <!-- Parked Time -->
+          <td class="border-2 border-gray-800 px-4 py-3">
+            {{ parking.parkedTime ?? '-' }}
+          </td>
+
+
+          <!-- Final Cost -->
+          <td class="border-2 border-gray-800 px-4 py-3">
+            {{ parking.finalCost != null
+              ? '₹' + parking.finalCost
+              : '-'
+            }}
+          </td>
+
+        </tr>
+
+      }
+
+
+      <!-- No Data -->
+      @if (CalenderData().length === 0) {
+
+        <tr>
+
+          <td
+            colspan="6"
+            class="border-2 border-gray-800 px-4 py-8 text-center text-gray-500"
+          >
+            No parking records found for　
+            駐車記録が見つかりません
+
+            {{ selectedDate() }}
+          </td>
+
+        </tr>
+
+      }
+
+    </tbody>
+
+  </table>
+
+</div>
+
+
+}
+
+  <!-- Back Button -->
+
+  <div class="fixed bottom-5 right-5">
+
+
+<a
+  routerLink="/home"
+  class="inline-block rounded-md bg-gray-800 px-6 py-2 font-medium text-white transition hover:bg-gray-700"
+>
+  
+  <!-- ← Back -->
+  ← 戻る
+</a>
+
+
+  </div>
+
+</div>
