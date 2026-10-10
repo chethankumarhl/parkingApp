@@ -32,7 +32,7 @@ interface OcrApiResponse {
   providedIn: 'root',
 })
 export class CaptureService {
-  apiUrl = 'https://parkingapp-ocr-service.onrender.com/';
+  apiUrl = 'https://parkingapp-ocr-service.onrender.com';
 
   constructor(private http: HttpClient) {}
 
