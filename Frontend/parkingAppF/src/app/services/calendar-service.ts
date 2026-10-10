@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class CalendarService {
-   apiUrl = 'http://localhost:8080/calender/all';
+   apiUrl = 'https://parkingapp-bz8a.onrender.com/calender/all';
 
   constructor(private http: HttpClient) {}
 

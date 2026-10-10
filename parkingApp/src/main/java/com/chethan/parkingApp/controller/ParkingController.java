@@ -18,7 +18,7 @@ import com.chethan.parkingApp.services.ParkingService;
 
 import lombok.RequiredArgsConstructor;
 
-@CrossOrigin(origins = "http://localhost:4200") // this is used to solve CORS issue when the frontend is running on a
+@CrossOrigin(origins = "https://parkingapp-frontend.onrender.com")
                                                 // different port than the backend
 @RestController
 @RequestMapping("/parking")

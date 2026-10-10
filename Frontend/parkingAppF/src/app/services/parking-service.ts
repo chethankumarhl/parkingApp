@@ -8,9 +8,9 @@ import { Observable } from 'rxjs/internal/Observable';
   providedIn: 'root',
 })
 export class ParkingService {
-  apiUrl = 'http://localhost:8080/parking/all';
-  addUrl = 'http://localhost:8080/parking/add';
-  deleteUrl = 'http://localhost:8080/parking/delete';
+  apiUrl = 'https://parkingapp-bz8a.onrender.com/parking/all';
+  addUrl = 'https://parkingapp-bz8a.onrender.com/parking/add';
+  deleteUrl = 'https://parkingapp-bz8a.onrender.com/parking/delete';
 
   constructor(private http: HttpClient) {}
   getParkingData() {
@@ -18,15 +18,15 @@ export class ParkingService {
   }
 
   getAvailableParking() {
-    return this.http.get<Parking[]>('http://localhost:8080/parking/available');
+    return this.http.get<Parking[]>('https://parkingapp-bz8a.onrender.com/parking/available');
   }
   getRecentlyCompleted() {
   return this.http.get<Parking[]>(
-    'http://localhost:8080/parking/recently-completed'
+    'https://parkingapp-bz8a.onrender.com/parking/recently-completed'
   );
 }
 
-  // POST http://localhost:8080/parking/add
+  // POST https://parkingapp-bz8a.onrender.com/parking/add
   // Body: { "registrationNumber": "KA01NJ3112" }
    addParking(registrationNumber: string): Observable<string> {
     return this.http.post(

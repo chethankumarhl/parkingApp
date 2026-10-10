@@ -17,7 +17,7 @@ import com.chethan.parkingApp.services.priceService;
 
 import lombok.RequiredArgsConstructor;
 
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "https://parkingapp-frontend.onrender.com")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/price")

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "https://parkingapp-frontend.onrender.com")
 @RestController
 @RequestMapping("/calender")
 @RequiredArgsConstructor
