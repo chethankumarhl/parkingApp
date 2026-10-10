@@ -48,6 +48,7 @@ ALLOWED_ORIGINS = [
     o.strip()
     for o in os.environ.get(
         "ALLOWED_ORIGINS",
+        "https://parkingapp-frontend.onrender.com,https://parkingapp-bz8a.onrender.com"
         "http://localhost:4200,http://127.0.0.1:4200,http://localhost:8000,http://127.0.0.1:8000",
     ).split(",")
     if o.strip()
